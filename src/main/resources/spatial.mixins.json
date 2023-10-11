@@ -3,7 +3,8 @@
 	"package": "dev.mrturtle.spatial.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ServerPlayerEntityMixin"
+		"ScreenHandlerMixin",
+		"SlotMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

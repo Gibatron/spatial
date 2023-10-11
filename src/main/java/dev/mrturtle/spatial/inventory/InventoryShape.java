@@ -1,0 +1,93 @@
+package dev.mrturtle.spatial.inventory;
+
+import dev.mrturtle.spatial.Spatial;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.recipe.Ingredient;
+import net.minecraft.util.collection.DefaultedList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.OptionalInt;
+
+public class InventoryShape {
+	public List<InventoryPosition> shape;
+	public int width;
+	public int height;
+
+	public InventoryShape() {
+		shape = List.of(new InventoryPosition(0, 0));
+		width = 1;
+		height = 1;
+	}
+
+	public InventoryShape(List<InventoryPosition> shape, int width, int height) {
+		this.shape = shape;
+		this.width = width;
+		this.height = height;
+	}
+
+	public boolean canPlaceAt(Inventory inventory, int index) {
+		int row = index / 9;
+		for (InventoryPosition pos : shape) {
+			int posIndex = pos.getRelativeIndex(index);
+			if (posIndex < 0 || posIndex >= inventory.size())
+				return false;
+			if (inventory instanceof PlayerInventory playerInventory) {
+				int posRow = posIndex / 9;
+				if (pos.y == 0 && posRow != row)
+					return false;
+				// Prevent putting things into armor slots and offhand, this isn't working
+				OptionalInt optionalInt = playerInventory.player.playerScreenHandler.getSlotIndex(inventory, index);
+				if (optionalInt.isPresent()) {
+					if (playerInventory.player.playerScreenHandler.getSlot(optionalInt.getAsInt()).getMaxItemCount() == 1)
+						return false;
+				}
+			}
+			if (!inventory.getStack(posIndex).isEmpty())
+				return false;
+		}
+		return true;
+	}
+
+	public void placeAt(Inventory inventory, int index, ItemStack stack) {
+		for (InventoryPosition pos : shape) {
+			int posIndex = pos.getRelativeIndex(index);
+			if (posIndex == index)
+				continue;
+			ItemStack newStack = stack.copyWithCount(1);
+			NbtCompound nbt = newStack.getOrCreateNbt();
+			nbt.putBoolean("isSpatialCopy", true);
+			nbt.putInt("spatialOwnerIndex", index);
+			newStack.setNbt(nbt);
+			inventory.setStack(posIndex, newStack);
+		}
+		if (inventory instanceof PlayerInventory playerInventory) {
+			playerInventory.player.playerScreenHandler.updateToClient();
+			Spatial.LOGGER.info("updating player inventory");
+		}
+	}
+
+	public void removeAt(Inventory inventory, int index) {
+		for (InventoryPosition pos : shape) {
+			int posIndex = pos.getRelativeIndex(index);
+			if (posIndex == index)
+				continue;
+			inventory.removeStack(posIndex);
+		}
+	}
+
+	public static InventoryShape fromIngredientList(DefaultedList<Ingredient> ingredients, int width, int height) {
+		List<InventoryPosition> shape = new ArrayList<>();
+		for (int j = 0; j < height; j++) {
+			for (int i = 0; i < width; i++) {
+				Ingredient ingredient = ingredients.get(i + j * width);
+				if (!ingredient.isEmpty())
+					shape.add(new InventoryPosition(i, j));
+			}
+		}
+		return new InventoryShape(shape, width, height);
+	}
+}
