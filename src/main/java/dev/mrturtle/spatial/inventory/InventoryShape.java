@@ -10,7 +10,6 @@ import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.OptionalInt;
 
 public class InventoryShape {
 	public List<InventoryPosition> shape;
@@ -32,7 +31,7 @@ public class InventoryShape {
 	public boolean canPlaceAt(Inventory inventory, int index) {
 		int row = index / 9;
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(index);
+			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex < 0 || posIndex >= inventory.size())
 				return false;
 			if (inventory instanceof PlayerInventory) {
@@ -57,7 +56,7 @@ public class InventoryShape {
 
 	public void placeAt(Inventory inventory, int index, ItemStack stack) {
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(index);
+			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex == index)
 				continue;
 			ItemStack newStack = stack.copyWithCount(1);
@@ -75,8 +74,15 @@ public class InventoryShape {
 
 	public void removeAt(Inventory inventory, int index) {
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(index);
+			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex == index)
+				continue;
+			ItemStack slotStack = inventory.getStack(posIndex);
+			if (!slotStack.hasNbt())
+				continue;
+			if (!slotStack.getOrCreateNbt().getBoolean("isSpatialCopy"))
+				continue;
+			if (slotStack.getOrCreateNbt().getInt("spatialOwnerIndex") != index)
 				continue;
 			inventory.removeStack(posIndex);
 		}

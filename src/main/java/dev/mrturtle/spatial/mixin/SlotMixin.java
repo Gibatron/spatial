@@ -2,7 +2,9 @@ package dev.mrturtle.spatial.mixin;
 
 import dev.mrturtle.spatial.Spatial;
 import dev.mrturtle.spatial.inventory.InventoryShape;
+import net.minecraft.block.entity.*;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -30,6 +32,8 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
+		if (isInvalidInventory(inventory))
+			return;
 		// Don't run on mainhand or offhand
 		if (inventory instanceof PlayerInventory)
 			if (index == 4 || index == 40)
@@ -45,6 +49,8 @@ public abstract class SlotMixin {
 		if (previousStack.hasNbt())
 			if (previousStack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
+		if (isInvalidInventory(inventory))
+			return;
 		if (inventory instanceof PlayerInventory) {
 			// Don't run on mainhand or offhand
 			if (index == 4 || index == 40)
@@ -65,6 +71,8 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
+		if (isInvalidInventory(inventory))
+			return;
 		if (inventory instanceof PlayerInventory) {
 			// Don't run on mainhand or offhand
 			if (index == 4 || index == 40)
@@ -85,6 +93,8 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
+		if (isInvalidInventory(inventory))
+			return;
 		Spatial.LOGGER.info("Insert Stack - Placing shape of " + stack);
 		InventoryShape shape = Spatial.getShape(stack);
 		shape.placeAt(inventory, index, stack);
@@ -97,11 +107,29 @@ public abstract class SlotMixin {
 			return;
 		if (!stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 			return;
+		if (isInvalidInventory(inventory))
+			return;
 		cir.setReturnValue(ItemStack.EMPTY);
 	}
 
 	@Redirect(method = "canTakePartial", at = @At(value = "INVOKE", target = "Lnet/minecraft/screen/slot/Slot;canInsert(Lnet/minecraft/item/ItemStack;)Z"))
 	public boolean canInsertRedirect(Slot instance, ItemStack stack) {
+		return true;
+	}
+
+	public boolean isInvalidInventory(Inventory inventory) {
+		if (inventory instanceof PlayerInventory)
+			return false;
+		if (inventory instanceof ChestBlockEntity)
+			return false;
+		if (inventory instanceof EnderChestInventory)
+			return false;
+		if (inventory instanceof BarrelBlockEntity)
+			return false;
+		if (inventory instanceof ShulkerBoxBlockEntity)
+			return false;
+		if (inventory instanceof DispenserBlockEntity)
+			return false;
 		return true;
 	}
 }

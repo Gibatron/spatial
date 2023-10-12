@@ -18,27 +18,40 @@ public class PlayerInventoryMixin {
 
     @Redirect(method = "offer", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getOccupiedSlotWithRoomForStack(Lnet/minecraft/item/ItemStack;)I"))
     public int offerGetOccupiedSlotWithRoomForStackRedirect(PlayerInventory instance, ItemStack stack) {
-        return getOccupiedSlotWithRoomForStackRedirect(instance, stack);
+        int index = getOccupiedSlotWithRoomForStackRedirect(instance, stack);
+        if (index != -1)
+            attemptPlacement(stack, index);
+        return index;
     }
 
     @Redirect(method = "addStack(Lnet/minecraft/item/ItemStack;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getOccupiedSlotWithRoomForStack(Lnet/minecraft/item/ItemStack;)I"))
     public int addStackGetOccupiedSlotWithRoomForStackRedirect(PlayerInventory instance, ItemStack stack) {
         int index = getOccupiedSlotWithRoomForStackRedirect(instance, stack);
-        if (index != -1) {
-            if (stack.isEmpty())
-                return index;
-            if (stack.hasNbt())
-                if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
-                    return index;
-            // Don't run on mainhand or offhand
-            if (index == 4 || index == 40)
-                return index;
-            // This doesn't work
-            Spatial.LOGGER.info("Add Stack - Placing shape of " + stack);
-            InventoryShape shape = Spatial.getShape(stack);
-            shape.placeAt((Inventory) this, index, stack);
-        }
+        if (index != -1)
+            attemptPlacement(stack, index);
         return index;
+    }
+
+    @Redirect(method = "addStack(Lnet/minecraft/item/ItemStack;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getEmptySlot()I"))
+    public int addStackGetEmptySlotRedirect(PlayerInventory instance, ItemStack stack) {
+        int index = instance.getEmptySlot();
+        if (index != 4 && index <= 8)
+            return -1;
+        return index;
+    }
+
+    public void attemptPlacement(ItemStack stack, int index) {
+        if (stack.isEmpty())
+            return;
+        if (stack.hasNbt())
+            if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
+                return;
+        // Don't run on mainhand or offhand
+        if (index == 4 || index == 40)
+            return;
+        Spatial.LOGGER.info("Add Stack - Placing shape of " + stack);
+        InventoryShape shape = Spatial.getShape(stack);
+        shape.placeAt((Inventory) this, index, stack);
     }
 
     public int getOccupiedSlotWithRoomForStackRedirect(PlayerInventory instance, ItemStack stack) {
@@ -50,7 +63,7 @@ public class PlayerInventoryMixin {
             if (!slotStack.isEmpty())
                 continue;
             InventoryShape shape = Spatial.getShape(stack);
-            if (shape.canPlaceAt((Inventory) this, i))
+            if (shape.canPlaceAt((Inventory) this, i) || i == 4 || i == 40)
                 return i;
         }
         return -1;
