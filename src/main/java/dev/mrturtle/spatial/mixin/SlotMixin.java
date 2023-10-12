@@ -30,6 +30,10 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
+		// Don't run on mainhand or offhand
+		if (inventory instanceof PlayerInventory)
+			if (index == 4 || index == 40)
+				return;
 		InventoryShape shape = Spatial.getShape(stack);
 		cir.setReturnValue(shape.canPlaceAt(inventory, index));
 	}
@@ -41,9 +45,14 @@ public abstract class SlotMixin {
 		if (previousStack.hasNbt())
 			if (previousStack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (inventory instanceof PlayerInventory)
+		if (inventory instanceof PlayerInventory) {
+			// Don't run on mainhand or offhand
+			if (index == 4 || index == 40)
+				return;
+			// Don't run on armor slots
 			if (getMaxItemCount() == 1)
 				return;
+		}
 		Spatial.LOGGER.info("Set Stack - Removing shape of " + previousStack);
 		InventoryShape shape = Spatial.getShape(previousStack);
 		shape.removeAt(inventory, index);
@@ -56,9 +65,14 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (inventory instanceof PlayerInventory)
+		if (inventory instanceof PlayerInventory) {
+			// Don't run on mainhand or offhand
+			if (index == 4 || index == 40)
+				return;
+			// Don't run on armor slots
 			if (getMaxItemCount() == 1)
 				return;
+		}
 		Spatial.LOGGER.info("Set Stack NCB - Placing shape of " + stack);
 		InventoryShape shape = Spatial.getShape(stack);
 		shape.placeAt(inventory, index, stack);

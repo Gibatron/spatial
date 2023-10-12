@@ -35,16 +35,19 @@ public class InventoryShape {
 			int posIndex = pos.getRelativeIndex(index);
 			if (posIndex < 0 || posIndex >= inventory.size())
 				return false;
-			if (inventory instanceof PlayerInventory playerInventory) {
+			if (inventory instanceof PlayerInventory) {
 				int posRow = posIndex / 9;
 				if (pos.y == 0 && posRow != row)
 					return false;
-				// Prevent putting things into armor slots and offhand, this isn't working
-				OptionalInt optionalInt = playerInventory.player.playerScreenHandler.getSlotIndex(inventory, index);
-				if (optionalInt.isPresent()) {
-					if (playerInventory.player.playerScreenHandler.getSlot(optionalInt.getAsInt()).getMaxItemCount() == 1)
-						return false;
-				}
+				// Prevent placing in armor slots
+				if (posIndex >= 36 && posIndex <= 39)
+					return false;
+				// Prevent placing in offhand
+				if (posIndex == 40)
+					return false;
+				// Prevent placing in hotbar
+				if (posIndex <= 8)
+					return false;
 			}
 			if (!inventory.getStack(posIndex).isEmpty())
 				return false;
