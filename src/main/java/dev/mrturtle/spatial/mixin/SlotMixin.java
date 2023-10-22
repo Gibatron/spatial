@@ -4,6 +4,7 @@ import dev.mrturtle.spatial.Spatial;
 import dev.mrturtle.spatial.inventory.InventoryShape;
 import net.minecraft.block.entity.*;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -11,6 +12,7 @@ import net.minecraft.screen.slot.Slot;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -59,7 +61,6 @@ public abstract class SlotMixin {
 			if (getMaxItemCount() == 1)
 				return;
 		}
-		Spatial.LOGGER.info("Set Stack - Removing shape of " + previousStack);
 		InventoryShape shape = Spatial.getShape(previousStack);
 		shape.removeAt(inventory, index);
 	}
@@ -81,7 +82,6 @@ public abstract class SlotMixin {
 			if (getMaxItemCount() == 1)
 				return;
 		}
-		Spatial.LOGGER.info("Set Stack NCB - Placing shape of " + stack);
 		InventoryShape shape = Spatial.getShape(stack);
 		shape.placeAt(inventory, index, stack);
 	}
@@ -95,7 +95,6 @@ public abstract class SlotMixin {
 				return;
 		if (isInvalidInventory(inventory))
 			return;
-		Spatial.LOGGER.info("Insert Stack - Placing shape of " + stack);
 		InventoryShape shape = Spatial.getShape(stack);
 		shape.placeAt(inventory, index, stack);
 	}
@@ -117,10 +116,13 @@ public abstract class SlotMixin {
 		return true;
 	}
 
+	@Unique
 	public boolean isInvalidInventory(Inventory inventory) {
 		if (inventory instanceof PlayerInventory)
 			return false;
 		if (inventory instanceof ChestBlockEntity)
+			return false;
+		if (inventory instanceof DoubleInventory)
 			return false;
 		if (inventory instanceof EnderChestInventory)
 			return false;

@@ -1,11 +1,11 @@
 package dev.mrturtle.spatial.inventory;
 
-import dev.mrturtle.spatial.Spatial;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
@@ -29,6 +29,9 @@ public class InventoryShape {
 	}
 
 	public boolean canPlaceAt(Inventory inventory, int index) {
+		if (inventory instanceof PlayerInventory playerInventory)
+			if (playerInventory.player.isCreative())
+				return true;
 		int row = index / 9;
 		for (InventoryPosition pos : shape) {
 			int posIndex = pos.getRelativeIndex(inventory, index);
@@ -55,24 +58,31 @@ public class InventoryShape {
 	}
 
 	public void placeAt(Inventory inventory, int index, ItemStack stack) {
+		if (inventory instanceof PlayerInventory playerInventory)
+			if (playerInventory.player.isCreative())
+				return;
 		for (InventoryPosition pos : shape) {
 			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex == index)
 				continue;
 			ItemStack newStack = stack.copyWithCount(1);
+			newStack.setCustomName(Text.empty());
 			NbtCompound nbt = newStack.getOrCreateNbt();
 			nbt.putBoolean("isSpatialCopy", true);
 			nbt.putInt("spatialOwnerIndex", index);
 			newStack.setNbt(nbt);
 			inventory.setStack(posIndex, newStack);
 		}
+		// This might not actually be needed...
 		if (inventory instanceof PlayerInventory playerInventory) {
 			playerInventory.player.playerScreenHandler.updateToClient();
-			Spatial.LOGGER.info("updating player inventory");
 		}
 	}
 
 	public void removeAt(Inventory inventory, int index) {
+		if (inventory instanceof PlayerInventory playerInventory)
+			if (playerInventory.player.isCreative())
+				return;
 		for (InventoryPosition pos : shape) {
 			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex == index)
@@ -96,6 +106,27 @@ public class InventoryShape {
 				if (!ingredient.isEmpty())
 					shape.add(new InventoryPosition(i, j));
 			}
+		}
+		return new InventoryShape(shape, width, height);
+	}
+
+	public static InventoryShape fromString(String input) {
+		String[] lines = input.split("\n");
+		int width = 0;
+		int height = lines.length;
+		int j = 0;
+		List<InventoryPosition> shape = new ArrayList<>();
+		for (String line : lines) {
+			int lineWidth = line.length();
+			if (width < lineWidth)
+				width = lineWidth;
+			int i = 0;
+			for (char c : line.toCharArray()) {
+				if (c != ' ')
+					shape.add(new InventoryPosition(i, j));
+				i += 1;
+			}
+			j += 1;
 		}
 		return new InventoryShape(shape, width, height);
 	}
