@@ -22,8 +22,18 @@ public abstract class PlayerInventoryMixin {
 
     @Shadow public abstract int getOccupiedSlotWithRoomForStack(ItemStack stack);
 
+    @Shadow public int selectedSlot;
+
     @Redirect(method = "offer", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getOccupiedSlotWithRoomForStack(Lnet/minecraft/item/ItemStack;)I"))
     public int offerGetOccupiedSlotWithRoomForStackRedirect(PlayerInventory instance, ItemStack stack) {
+        int index = getOccupiedSlotWithRoomForStackRedirect(instance, stack);
+        if (index != -1)
+            attemptPlacement(stack, index);
+        return index;
+    }
+
+    @Redirect(method = "offer", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerInventory;getEmptySlot()I"))
+    public int offerGetEmptySlotRedirect(PlayerInventory instance, ItemStack stack) {
         int index = getOccupiedSlotWithRoomForStackRedirect(instance, stack);
         if (index != -1)
             attemptPlacement(stack, index);
@@ -68,6 +78,12 @@ public abstract class PlayerInventoryMixin {
 
     @Inject(method = "swapSlotWithHotbar", at = @At("HEAD"), cancellable = true)
     public void swapSlotWithHotbar(int slot, CallbackInfo ci) {
+        ci.cancel();
+    }
+
+    @Inject(method = "scrollInHotbar", at = @At("HEAD"), cancellable = true)
+    public void scrollInHotbar(double scrollAmount, CallbackInfo ci) {
+        selectedSlot = 4;
         ci.cancel();
     }
 

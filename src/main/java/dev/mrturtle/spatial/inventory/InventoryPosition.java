@@ -17,7 +17,7 @@ public class InventoryPosition {
         return index + x + y * getRowWidth(inventory);
     }
 
-    private int getRowWidth(Inventory inventory) {
+    public static int getRowWidth(Inventory inventory) {
         if (inventory instanceof HopperBlockEntity)
             return 5;
         if (inventory instanceof DispenserBlockEntity)

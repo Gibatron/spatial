@@ -1,14 +1,21 @@
 {
-  "required": true,
-  "package": "dev.mrturtle.spatial.mixin",
-  "compatibilityLevel": "JAVA_17",
-  "mixins": [
-    "PlayerInventoryMixin",
-    "RecipeMatcherMixin",
-    "ScreenHandlerMixin",
-    "SlotMixin"
-  ],
-  "injectors": {
-    "defaultRequire": 1
-	}
+	"required": true,
+	"package": "dev.mrturtle.spatial.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"PlayerInventoryMixin",
+		"RecipeMatcherMixin",
+		"ScreenHandlerMixin",
+		"ServerPlayerEntityMixin",
+		"ServerPlayNetworkHandlerMixin",
+		"SlotMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"client": [
+		"DrawContextMixin",
+		"HandledScreenMixin",
+		"InventoryScreenMixin"
+	]
 }

@@ -32,15 +32,16 @@ public class InventoryShape {
 		if (inventory instanceof PlayerInventory playerInventory)
 			if (playerInventory.player.isCreative())
 				return true;
-		int row = index / 9;
+		int rowWidth = InventoryPosition.getRowWidth(inventory);
+		int row = index / rowWidth;
 		for (InventoryPosition pos : shape) {
 			int posIndex = pos.getRelativeIndex(inventory, index);
 			if (posIndex < 0 || posIndex >= inventory.size())
 				return false;
+			int posRow = posIndex / rowWidth;
+			if (posRow != row + pos.y)
+				return false;
 			if (inventory instanceof PlayerInventory) {
-				int posRow = posIndex / 9;
-				if (pos.y == 0 && posRow != row)
-					return false;
 				// Prevent placing in armor slots
 				if (posIndex >= 36 && posIndex <= 39)
 					return false;

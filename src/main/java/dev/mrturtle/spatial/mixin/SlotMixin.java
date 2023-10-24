@@ -116,6 +116,17 @@ public abstract class SlotMixin {
 		return true;
 	}
 
+	@Inject(method = "canBeHighlighted", at = @At("RETURN"), cancellable = true)
+	public void canBeHighlighted(CallbackInfoReturnable<Boolean> cir) {
+		if (!(inventory instanceof PlayerInventory))
+			return;
+		if (index == 4 || index == 40)
+			return;
+		if (index > 9)
+			return;
+		cir.setReturnValue(false);
+	}
+
 	@Unique
 	public boolean isInvalidInventory(Inventory inventory) {
 		if (inventory instanceof PlayerInventory)

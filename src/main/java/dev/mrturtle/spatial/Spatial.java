@@ -101,6 +101,11 @@ public class Spatial implements ModInitializer {
 		addShapeOverrideFrom(Items.SALMON_BUCKET, Items.WATER_BUCKET);
 		addShapeOverrideFrom(Items.TADPOLE_BUCKET, Items.WATER_BUCKET);
 		addShapeOverrideFrom(Items.TROPICAL_FISH_BUCKET, Items.WATER_BUCKET);
+		// Potions
+		addShapeOverrideFrom(Items.POTION, Items.GLASS_BOTTLE);
+		addShapeOverrideFrom(Items.SPLASH_POTION, Items.GLASS_BOTTLE);
+		addShapeOverrideFrom(Items.LINGERING_POTION, Items.GLASS_BOTTLE);
+		addShapeOverrideFrom(Items.HONEY_BOTTLE, Items.GLASS_BOTTLE);
 		// Anvils
 		addShapeOverrideFrom(Items.CHIPPED_ANVIL, Items.ANVIL);
 		addShapeOverrideFrom(Items.DAMAGED_ANVIL, Items.ANVIL);
@@ -109,6 +114,7 @@ public class Spatial implements ModInitializer {
 		addShapeOverrideFrom(Items.TIPPED_ARROW, Items.ARROW);
 		// Other
 		addShapeOverride(Items.TRIDENT, "x\nx\nx");
+		addShapeOverrideFrom(Items.TRAPPED_CHEST, Items.CHEST);
 	}
 
 	private static void addShapeOverride(Item item, String shape) {
