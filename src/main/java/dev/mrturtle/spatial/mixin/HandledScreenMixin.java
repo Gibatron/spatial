@@ -45,10 +45,10 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> {
 			return;
 		InventoryShape shape = Spatial.getShape(stack);
 		for (InventoryPosition pos : shape.shape) {
-			if (pos.x == 0 && pos.y == 0)
+			if (pos == shape.shape.get(0))
 				continue;
-			int i = pos.x * 18 + mouseX - x - 8;
-			int j = pos.y * 18 + mouseY - y - 8;
+			int i = (pos.x - shape.shape.get(0).x) * 18 + mouseX - x - 8;
+			int j = (pos.y - shape.shape.get(0).y) * 18 + mouseY - y - 8;
 			context.fill(RenderLayer.getGuiOverlay(), i - 1, j - 1, i + 17, j + 17, SpatialUtil.colorFromItemStack(stack));
 			drawItem(context, stack.copyWithCount(1), i, j, null);
 		}
@@ -61,10 +61,10 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> {
 			return;
 		InventoryShape shape = Spatial.getShape(stack);
 		for (InventoryPosition pos : shape.shape) {
-			if (pos.x == 0 && pos.y == 0)
+			if (pos == shape.shape.get(0))
 				continue;
-			int i = pos.x * 18 + mouseX;
-			int j = pos.y * 18 + mouseY;
+			int i = (pos.x - shape.shape.get(0).x) * 18 + mouseX;
+			int j = (pos.y - shape.shape.get(0).y) * 18 + mouseY;
 			Slot slot = getSlotAt(i, j);
 			if (slot == null)
 				continue;

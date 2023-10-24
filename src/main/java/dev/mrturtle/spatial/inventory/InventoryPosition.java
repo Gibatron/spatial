@@ -13,8 +13,10 @@ public class InventoryPosition {
         this.y = y;
     }
 
-    public int getRelativeIndex(Inventory inventory, int index) {
-        return index + x + y * getRowWidth(inventory);
+    public int getRelativeIndex(Inventory inventory, int index, InventoryPosition originPos) {
+        int modifiedX = x - originPos.x;
+        int modifiedY = y - originPos.y;
+        return index + modifiedX + modifiedY * getRowWidth(inventory);
     }
 
     public static int getRowWidth(Inventory inventory) {

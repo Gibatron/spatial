@@ -35,7 +35,7 @@ public class InventoryShape {
 		int rowWidth = InventoryPosition.getRowWidth(inventory);
 		int row = index / rowWidth;
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(inventory, index);
+			int posIndex = pos.getRelativeIndex(inventory, index, shape.get(0));
 			if (posIndex < 0 || posIndex >= inventory.size())
 				return false;
 			int posRow = posIndex / rowWidth;
@@ -63,7 +63,7 @@ public class InventoryShape {
 			if (playerInventory.player.isCreative())
 				return;
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(inventory, index);
+			int posIndex = pos.getRelativeIndex(inventory, index, shape.get(0));
 			if (posIndex == index)
 				continue;
 			ItemStack newStack = stack.copyWithCount(1);
@@ -85,7 +85,7 @@ public class InventoryShape {
 			if (playerInventory.player.isCreative())
 				return;
 		for (InventoryPosition pos : shape) {
-			int posIndex = pos.getRelativeIndex(inventory, index);
+			int posIndex = pos.getRelativeIndex(inventory, index, shape.get(0));
 			if (posIndex == index)
 				continue;
 			ItemStack slotStack = inventory.getStack(posIndex);
