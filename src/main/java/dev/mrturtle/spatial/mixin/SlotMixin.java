@@ -122,7 +122,7 @@ public abstract class SlotMixin {
 			return;
 		if (index == 4 || index == 40)
 			return;
-		if (index > 9)
+		if (index > 8)
 			return;
 		cir.setReturnValue(false);
 	}
