@@ -5,6 +5,7 @@ import dev.mrturtle.spatial.inventory.InventoryPosition;
 import dev.mrturtle.spatial.inventory.InventoryShape;
 import dev.mrturtle.spatial.other.SpatialUtil;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.item.ItemStack;
@@ -34,23 +35,33 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> {
 
 	@Shadow @Nullable protected abstract Slot getSlotAt(double x, double y);
 
-	@Shadow
-	public static void drawSlotHighlight(DrawContext context, int x, int y, int z) {
+	@Inject(method = "drawSlot", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawItem(Lnet/minecraft/item/ItemStack;III)V", shift = At.Shift.AFTER, ordinal = 0))
+	public void drawSlot(DrawContext context, Slot slot, CallbackInfo ci) {
+		ItemStack stack = slot.getStack();
+		if (stack.isEmpty())
+			return;
+		if (Spatial.getShape(stack).shape.size() == 1)
+			return;
+		if (handler instanceof CreativeInventoryScreen.CreativeScreenHandler)
+			return;
+		context.fill(RenderLayer.getGui(), slot.x - 1, slot.y - 1, slot.x + 17, slot.y + 17, SpatialUtil.colorFromItemStack(stack, true));
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawItem(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", shift = At.Shift.AFTER, ordinal = 0))
+	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawItem(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", shift = At.Shift.BEFORE, ordinal = 0))
 	public void renderCursorStack(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
 		ItemStack stack = handler.getCursorStack();
 		if (stack.isEmpty())
 			return;
+		if (Spatial.getShape(stack).shape.size() == 1)
+			return;
 		InventoryShape shape = Spatial.getShape(stack);
 		for (InventoryPosition pos : shape.shape) {
-			if (pos == shape.shape.get(0))
-				continue;
 			int i = (pos.x - shape.shape.get(0).x) * 18 + mouseX - x - 8;
 			int j = (pos.y - shape.shape.get(0).y) * 18 + mouseY - y - 8;
-			context.fill(RenderLayer.getGuiOverlay(), i - 1, j - 1, i + 17, j + 17, SpatialUtil.colorFromItemStack(stack));
-			drawItem(context, stack.copyWithCount(1), i, j, null);
+			boolean isMainStack = pos == shape.shape.get(0);
+			context.fill(RenderLayer.getGuiOverlay(), i - 1, j - 1, i + 17, j + 17, SpatialUtil.colorFromItemStack(stack, isMainStack));
+			if (!isMainStack)
+				drawItem(context, stack.copyWithCount(1), i, j, null);
 		}
 	}
 
@@ -70,7 +81,7 @@ public abstract class HandledScreenMixin<T extends ScreenHandler> {
 				continue;
 			if (!slot.canBeHighlighted())
 				continue;
-			drawSlotHighlight(context, slot.x, slot.y, 0);
+			HandledScreen.drawSlotHighlight(context, slot.x, slot.y, 0);
 		}
 	}
 

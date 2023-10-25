@@ -2,6 +2,7 @@ package dev.mrturtle.spatial.mixin;
 
 import dev.mrturtle.spatial.Spatial;
 import dev.mrturtle.spatial.inventory.InventoryShape;
+import dev.mrturtle.spatial.other.SpatialUtil;
 import net.minecraft.block.entity.*;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.DoubleInventory;
@@ -34,7 +35,7 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (isInvalidInventory(inventory))
+		if (SpatialUtil.isInvalidInventory(inventory))
 			return;
 		// Don't run on mainhand or offhand
 		if (inventory instanceof PlayerInventory)
@@ -51,7 +52,7 @@ public abstract class SlotMixin {
 		if (previousStack.hasNbt())
 			if (previousStack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (isInvalidInventory(inventory))
+		if (SpatialUtil.isInvalidInventory(inventory))
 			return;
 		if (inventory instanceof PlayerInventory) {
 			// Don't run on mainhand or offhand
@@ -72,7 +73,7 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (isInvalidInventory(inventory))
+		if (SpatialUtil.isInvalidInventory(inventory))
 			return;
 		if (inventory instanceof PlayerInventory) {
 			// Don't run on mainhand or offhand
@@ -93,7 +94,7 @@ public abstract class SlotMixin {
 		if (stack.hasNbt())
 			if (stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 				return;
-		if (isInvalidInventory(inventory))
+		if (SpatialUtil.isInvalidInventory(inventory))
 			return;
 		InventoryShape shape = Spatial.getShape(stack);
 		shape.placeAt(inventory, index, stack);
@@ -106,7 +107,7 @@ public abstract class SlotMixin {
 			return;
 		if (!stack.getOrCreateNbt().getBoolean("isSpatialCopy"))
 			return;
-		if (isInvalidInventory(inventory))
+		if (SpatialUtil.isInvalidInventory(inventory))
 			return;
 		cir.setReturnValue(ItemStack.EMPTY);
 	}
@@ -125,24 +126,5 @@ public abstract class SlotMixin {
 		if (index > 8)
 			return;
 		cir.setReturnValue(false);
-	}
-
-	@Unique
-	public boolean isInvalidInventory(Inventory inventory) {
-		if (inventory instanceof PlayerInventory)
-			return false;
-		if (inventory instanceof ChestBlockEntity)
-			return false;
-		if (inventory instanceof DoubleInventory)
-			return false;
-		if (inventory instanceof EnderChestInventory)
-			return false;
-		if (inventory instanceof BarrelBlockEntity)
-			return false;
-		if (inventory instanceof ShulkerBoxBlockEntity)
-			return false;
-		if (inventory instanceof DispenserBlockEntity)
-			return false;
-		return true;
 	}
 }
