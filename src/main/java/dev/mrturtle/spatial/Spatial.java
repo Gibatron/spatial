@@ -13,6 +13,7 @@ import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.ShapedRecipe;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import org.slf4j.Logger;
@@ -112,6 +113,10 @@ public class Spatial implements ModInitializer {
 		// Arrows
 		addShapeOverrideFrom(Items.SPECTRAL_ARROW, Items.ARROW);
 		addShapeOverrideFrom(Items.TIPPED_ARROW, Items.ARROW);
+		// Dyed Variants
+		addDyedShapeOverride(Items.SHULKER_BOX);
+        addDyedShapeOverride(Items.CANDLE);
+		addDyedShapeOverride(new Identifier("minecraft", "wool"), Items.WHITE_WOOL);
 		// Other
 		addShapeOverride(Items.TRIDENT, "x\nx\nx");
 		addShapeOverrideFrom(Items.TRAPPED_CHEST, Items.CHEST);
@@ -123,5 +128,16 @@ public class Spatial implements ModInitializer {
 
 	private static void addShapeOverrideFrom(Item item, Item from) {
 		shapes.put(Registries.ITEM.getId(item), shapes.get(Registries.ITEM.getId(from)));
+	}
+
+	private static void addDyedShapeOverride(Item from) {
+		addDyedShapeOverride(Registries.ITEM.getId(from), from);
+	}
+
+	private static void addDyedShapeOverride(Identifier fromID, Item from) {
+		for (DyeColor color : DyeColor.values()) {
+			Identifier toID = new Identifier(fromID.getNamespace(), String.format("%s_%s", color.getName().toLowerCase(), fromID.getPath()));
+			addShapeOverrideFrom(Registries.ITEM.get(toID), from);
+		}
 	}
 }
