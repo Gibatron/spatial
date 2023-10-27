@@ -120,6 +120,8 @@ public class Spatial implements ModInitializer {
 		// Other
 		addShapeOverride(Items.TRIDENT, "x\nx\nx");
 		addShapeOverrideFrom(Items.TRAPPED_CHEST, Items.CHEST);
+		addShapeOverrideFrom(Items.CARROT_ON_A_STICK, Items.FISHING_ROD);
+		addShapeOverrideFrom(Items.WARPED_FUNGUS_ON_A_STICK, Items.FISHING_ROD);
 	}
 
 	private static void addShapeOverride(Item item, String shape) {
