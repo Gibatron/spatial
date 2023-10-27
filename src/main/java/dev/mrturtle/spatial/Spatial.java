@@ -75,7 +75,7 @@ public class Spatial implements ModInitializer {
 		LOGGER.info("Loaded {} item shapes from config overrides", shapesFromConfig);
 	}
 
-	public static void loadDefaultOverrides() {
+	private static void loadDefaultOverrides() {
 		// Ingots
 		addShapeOverride(Items.IRON_INGOT, "xx");
 		addShapeOverrideFrom(Items.GOLD_INGOT, Items.IRON_INGOT);
@@ -124,19 +124,19 @@ public class Spatial implements ModInitializer {
 		addShapeOverrideFrom(Items.WARPED_FUNGUS_ON_A_STICK, Items.FISHING_ROD);
 	}
 
-	private static void addShapeOverride(Item item, String shape) {
+	public static void addShapeOverride(Item item, String shape) {
 		shapes.put(Registries.ITEM.getId(item), InventoryShape.fromString(shape));
 	}
 
-	private static void addShapeOverrideFrom(Item item, Item from) {
+	public static void addShapeOverrideFrom(Item item, Item from) {
 		shapes.put(Registries.ITEM.getId(item), shapes.get(Registries.ITEM.getId(from)));
 	}
 
-	private static void addDyedShapeOverride(Item from) {
+	public static void addDyedShapeOverride(Item from) {
 		addDyedShapeOverride(Registries.ITEM.getId(from), from);
 	}
 
-	private static void addDyedShapeOverride(Identifier fromID, Item from) {
+	public static void addDyedShapeOverride(Identifier fromID, Item from) {
 		for (DyeColor color : DyeColor.values()) {
 			Identifier toID = new Identifier(fromID.getNamespace(), String.format("%s_%s", color.getName().toLowerCase(), fromID.getPath()));
 			addShapeOverrideFrom(Registries.ITEM.get(toID), from);
