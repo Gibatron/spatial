@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.nio.file.Path;
 
 public class ConfigManager {
+	public static final int CONFIG_VERSION = 1;
 	private static final Path configPath = FabricLoader.getInstance().getConfigDir().resolve("spatial.json");
 
 	public static SpatialConfig config;
@@ -23,11 +24,29 @@ public class ConfigManager {
 				FileReader reader = new FileReader(configFile);
 				config = gson.fromJson(reader, SpatialConfig.class);
 				reader.close();
+				if (config.configVersion < CONFIG_VERSION)
+					updateConfig();
 			} else {
 				createDefaultConfig();
 			}
 		} catch (Exception e) {
 			Spatial.LOGGER.error("Something went wrong while loading config file!");
+			e.printStackTrace();
+		}
+	}
+
+	public static void updateConfig() {
+		File configFile = configPath.toFile();
+		try {
+			int oldVersion = config.configVersion;
+			config.configVersion = CONFIG_VERSION;
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			FileWriter writer = new FileWriter(configFile);
+			writer.write(gson.toJson(config));
+			writer.close();
+			Spatial.LOGGER.info("Updated config from VERSION {} to VERSION {}", oldVersion, CONFIG_VERSION);
+		} catch (Exception e) {
+			Spatial.LOGGER.error("Something went wrong while updating config file!");
 			e.printStackTrace();
 		}
 	}
@@ -48,7 +67,7 @@ public class ConfigManager {
 
 	public static SpatialConfig getDefaultConfig() {
 		SpatialConfig config = new SpatialConfig();
-		config.shapeOverrides.put("hopefully_this_is_not_a_real_mod_id:example_item", "xxx\n x \nxxx");
+		config.shapeOverrides.put("hopefully_this_is_not_a_real_mod_id:example_item", new String[] {"xxx", " x ", "xxx"});
 		return config;
 	}
 }

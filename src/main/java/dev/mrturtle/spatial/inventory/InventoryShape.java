@@ -4,11 +4,13 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class InventoryShape {
@@ -99,6 +101,19 @@ public class InventoryShape {
 		}
 	}
 
+	public void writeTo(PacketByteBuf buf) {
+		buf.writeCollection(shape, (bufx, pos) -> pos.writeTo(bufx));
+		buf.writeInt(width);
+		buf.writeInt(height);
+	}
+
+	public static InventoryShape readFrom(PacketByteBuf buf) {
+		List<InventoryPosition> shape = buf.readCollection(ArrayList::new, InventoryPosition::readFrom);
+		int width = buf.readInt();
+		int height = buf.readInt();
+		return new InventoryShape(shape, width, height);
+	}
+
 	public static InventoryShape fromIngredientList(DefaultedList<Ingredient> ingredients, int width, int height) {
 		List<InventoryPosition> shape = new ArrayList<>();
 		for (int j = 0; j < height; j++) {
@@ -111,13 +126,12 @@ public class InventoryShape {
 		return new InventoryShape(shape, width, height);
 	}
 
-	public static InventoryShape fromString(String input) {
-		String[] lines = input.split("\n");
+	public static InventoryShape fromString(String[] input) {
 		int width = 0;
-		int height = lines.length;
+		int height = input.length;
 		int j = 0;
 		List<InventoryPosition> shape = new ArrayList<>();
-		for (String line : lines) {
+		for (String line : input) {
 			int lineWidth = line.length();
 			if (width < lineWidth)
 				width = lineWidth;

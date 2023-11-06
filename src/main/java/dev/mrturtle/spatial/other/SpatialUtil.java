@@ -5,6 +5,7 @@ import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.block.entity.DispenserBlockEntity;
 import net.minecraft.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.entity.vehicle.VehicleInventory;
 import net.minecraft.inventory.DoubleInventory;
 import net.minecraft.inventory.EnderChestInventory;
 import net.minecraft.inventory.Inventory;
@@ -37,6 +38,8 @@ public class SpatialUtil {
 		if (inventory instanceof ShulkerBoxBlockEntity)
 			return false;
 		if (inventory instanceof DispenserBlockEntity)
+			return false;
+		if (inventory instanceof VehicleInventory)
 			return false;
 		return true;
 	}

@@ -3,15 +3,24 @@
 	"id": "spatial",
 	"version": "${version}",
 	"name": "Spatial",
-	"description": "",
+	"description": "Converts the inventory to a grid-based system.",
 	"authors": [
 		"MrTurtle"
 	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/spatial",
+		"sources": "https://github.com/Gibatron/spatial",
+		"issues": "https://github.com/Gibatron/spatial/issues"
+	},
+	"icon": "assets/spatial/icon.png",
 	"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
 			"dev.mrturtle.spatial.Spatial"
+		],
+		"client": [
+			"dev.mrturtle.spatial.SpatialClient"
 		]
 	},
 	"mixins": [
@@ -19,7 +28,7 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.14.22",
-		"minecraft": "~1.20.2",
+		"minecraft": "~1.20",
 		"java": ">=17",
 		"fabric-api": "*"
 	}
